@@ -10,7 +10,7 @@ namespace OMS_Backend.Models
         [Required]
         public int UserId { get; set; }
 
-        public User User { get; set; }
+        public User? User { get; set; }
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }

@@ -14,10 +14,7 @@ namespace OMS_Backend.Models
         [Required]
         public int ProductId { get; set; }
 
-        [ForeignKey(nameof(UserId))]
-        public User User { get; set; }
-
-        [ForeignKey(nameof(ProductId))]
-        public Product Product { get; set; }
+        public User? User { get; set; }
+        public Product? Product { get; set; }
     }
 }

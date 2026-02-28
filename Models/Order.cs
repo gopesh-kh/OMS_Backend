@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMS_Backend.Models
 {
-    public enum Status
+    public enum OrderStatus
     {
         PENDING,     // 0
         SHIPPED,    // 1
@@ -16,9 +17,10 @@ namespace OMS_Backend.Models
         public int OrderId { get; set; }
 
         [Required]
-        public DateTime OrderDate {  get; set; }
+        public DateTime OrderDate {  get; set; } = DateTime.UtcNow;
 
         [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; }
 
         [Required]
@@ -28,9 +30,9 @@ namespace OMS_Backend.Models
         public int ShippingAddressId { get; set; }
 
         [Required]
-        public Status Status { get; set; }
-        public User User { get; set; }
+        public OrderStatus OrderStatus { get; set; }
+        public User? User { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-        public Address ShippingAddress { get; set; }
+        public Address? ShippingAddress { get; set; }
     }
 }

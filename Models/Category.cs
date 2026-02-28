@@ -12,6 +12,6 @@ namespace OMS_Backend.Models
         [StringLength(100)]
         public string CategoryName { get; set; } = string.Empty;
 
-        public ICollection<Product> Products { get; set; }
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
