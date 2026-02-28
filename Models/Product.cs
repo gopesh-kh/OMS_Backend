@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMS_Backend.Models
 {
@@ -15,11 +16,14 @@ namespace OMS_Backend.Models
         public string ProductDescription { get; set; } = string.Empty;
 
         [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
+        [Range(0, int.MaxValue)]
         public int StockQuantity { get; set; }
-        public ICollection<Category> Categories { get; set; }
-        //public int CategoryId { get; set; }
-        //public Category Category { get; set; }
+
+        public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
+        public int CategoryId { get; set; }
+        public Category? Category { get; set; }
     }
 }

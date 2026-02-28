@@ -14,16 +14,23 @@ namespace OMS_Backend.Models
         [StringLength(150)]
         public string AddressLine2 { get; set;} = string.Empty;
 
+        [Required]
         [StringLength(50)]
         public string City { get; set; } = string.Empty;
-
+        
+        [Required]
         [StringLength(50)]
         public string State { get; set; } = string.Empty;
 
-        [StringLength(6, MinimumLength = 6, ErrorMessage = "PostalCode must be exactly 6 characters long.")]
+        [Required]
+        [RegularExpression(@"^\d{6}$", ErrorMessage = "PostalCode must be exactly 6 digits.")]
         public string PostalCode { get; set; } = string.Empty;
 
+        [Required]
+        [StringLength(50)]
+        public string Country { get; set; } = "India";
+
         public int UserId { get; set; }
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 }

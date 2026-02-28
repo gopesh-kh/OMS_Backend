@@ -2,11 +2,11 @@
 
 namespace OMS_Backend.Models
 {
-    public enum Role
+    public enum UserRole
     {
-        ADMIN,      // 0 -> ADMIN
-        VENDOR,    // 1 -> SELLER
-        CUSTOMER  // 2 -> BUYER
+        Admin = 0,      // 0 -> ADMIN
+        Vendor = 1,    // 1 -> SELLER
+        Customer = 2  // 2 -> BUYER
     }
     public class User : BaseEntity
     {
@@ -22,12 +22,19 @@ namespace OMS_Backend.Models
 
         [Required]
         [EmailAddress]
+        [StringLength(254)]
         public string Email { get; set; } = string.Empty;
 
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
-        public Role Role { get; set; }
+        [Required]
+        public UserRole UserRole { get; set; }
+
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
+        public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
+        public Cart? Cart { get; set; }
     }
 }
