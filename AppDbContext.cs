@@ -18,5 +18,152 @@ namespace OMS_Backend
         public DbSet<ProductReview> ProductReview { get; set; }
         public DbSet<User> Users { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            ConfigureUser(modelBuilder);
+            ConfigureAddress(modelBuilder);
+            ConfigureCart(modelBuilder);
+            ConfigureCartItem(modelBuilder);
+            ConfigureCategory(modelBuilder);
+            ConfigureProduct(modelBuilder);
+            ConfigureFavourite(modelBuilder);
+            ConfigureProductReview(modelBuilder);
+            ConfigureOrder(modelBuilder);
+            ConfigureOrderItem(modelBuilder);
+        }
+
+        private void ConfigureUser(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Cart)
+                .WithOne(c => c.User)
+                .HasForeignKey<Cart>(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureAddress(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Address>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.Addresses)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureCart(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Cart>()
+                .HasMany(c => c.CartItems)
+                .WithOne(ci => ci.Cart)
+                .HasForeignKey(ci => ci.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureCartItem(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Product)
+                .WithMany()
+                .HasForeignKey(ci => ci.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CartItem>()
+                .HasIndex(ci => new { ci.CartId, ci.ProductId })
+                .IsUnique();
+        }
+
+        private void ConfigureCategory(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.CategoryName)
+                .IsUnique();
+        }
+
+        private void ConfigureProduct(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        private void ConfigureFavourite(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Favourite>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Favourites)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Favourite>()
+                .HasOne(f => f.Product)
+                .WithMany(p => p.Favourites)
+                .HasForeignKey(f => f.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Favourite>()
+                .HasIndex(f => new { f.UserId, f.ProductId })
+                .IsUnique();
+        }
+
+        private void ConfigureProductReview(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(pr => pr.User)
+                .WithMany(u => u.ProductReviews)
+                .HasForeignKey(pr => pr.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(pr => pr.Product)
+                .WithMany()
+                .HasForeignKey(pr => pr.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductReview>()
+                .HasIndex(pr => new { pr.UserId, pr.ProductId })
+                .IsUnique();
+        }
+
+        private void ConfigureOrder(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.ShippingAddress)
+                .WithMany()
+                .HasForeignKey(o => o.ShippingAddressId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        private void ConfigureOrderItem(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasIndex(oi => new { oi.OrderId, oi.ProductId })
+                .IsUnique();
+        }
     }
 }
