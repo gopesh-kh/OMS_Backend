@@ -9,12 +9,6 @@ namespace OMS_Backend.Models
         public int CartItemId { get; set; }
 
         [Required]
-        public int CartId { get; set; }
-
-        [Required]
-        public int ProductId { get; set; }
-
-        [Required]
         [Range(1, 1000)]
         public int Quantity { get; set; }
 
@@ -23,10 +17,16 @@ namespace OMS_Backend.Models
         [Range(0.01, 99999999)]
         public decimal UnitPrice { get; set; }
 
-        [NotMapped]
-        public decimal TotalPrice => Quantity * UnitPrice;
+        [Required]
+        public int CartId { get; set; }
+
+        [Required]
+        public int ProductId { get; set; }
 
         public Cart? Cart { get; set; }
         public Product? Product { get; set; }
+
+        [NotMapped]
+        public decimal TotalPrice => Quantity * UnitPrice;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OMS_Backend.Data;
 
 namespace OMS_Backend.Repositories
 {
@@ -13,19 +14,21 @@ namespace OMS_Backend.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
-            => await _dbSet.ToListAsync();
+        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.AsNoTracking().ToListAsync();
 
-        public async Task<T?> GetByIdAsync(int id)
-            => await _dbSet.FindAsync(id);
+        public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
 
-        public async Task AddAsync(T entity)
-            => await _dbSet.AddAsync(entity);
+        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
 
-        public void Update(T entity)
-            => _dbSet.Update(entity);
+        public void Update(T entity) => _dbSet.Update(entity);
 
-        public void Delete(T entity)
-            => _dbSet.Remove(entity);
+        public void Delete(T entity) => _dbSet.Remove(entity);
+
+        public async Task<bool> ExistAsync(int id){
+            var entity = await GetByIdAsync(id);
+            return entity != null;
+        }
+
+        public async Task SaveAsync() => await _context.SaveChangesAsync();
     }
 }

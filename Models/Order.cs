@@ -3,14 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMS_Backend.Models
 {
-    public enum OrderStatus
-    {
-        PENDING,     // 0
-        SHIPPED,    // 1
-        DELIVERED, // 2 
-        CANCELLED // 3
-    }
-
     public class Order : BaseEntity
     {
         [Key]
@@ -30,9 +22,12 @@ namespace OMS_Backend.Models
         public int ShippingAddressId { get; set; }
 
         [Required]
-        public OrderStatus OrderStatus { get; set; }
-        public User? User { get; set; }
+        public int OrderStatusId { get; set; }
+
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
+        public OrderStatus? OrderStatus { get; set; }
+        public User? User { get; set; }
         public Address? ShippingAddress { get; set; }
     }
 }
