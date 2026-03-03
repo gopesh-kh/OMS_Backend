@@ -188,10 +188,12 @@ namespace OMS_Backend.Data
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = 1;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
                     entry.Entity.ModifiedAt = DateTime.UtcNow;
+                    entry.Entity.ModifiedBy = 1;
                 }
             }
 
