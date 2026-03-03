@@ -29,9 +29,9 @@ namespace OMS_Backend.Repositories
                     .AsNoTracking()
                     .Include(p => p.Categories)
                     .AsQueryable();
-                
-                if (categoryId.HasValue)
-                    query = query.Where(p => p.Categories.Any(c => c.CategoryId == categoryId.Value));
+
+                //if (categoryId.HasValue)
+                //    query = query.Where(p => p.Categories.Any(c => c.CategoryId == categoryId.Value));
 
                 if (!string.IsNullOrWhiteSpace(search))
                     query = query.Where(p =>
@@ -42,7 +42,7 @@ namespace OMS_Backend.Repositories
                     "price" => isDescending
                         ? query.OrderByDescending(p => p.Price)
                         : query.OrderBy(p => p.Price),
-                        
+
                     "name" => isDescending
                         ? query.OrderByDescending(p => p.ProductName)
                         : query.OrderBy(p => p.ProductName),
@@ -50,10 +50,12 @@ namespace OMS_Backend.Repositories
                     _ => query.OrderByDescending(p => p.ProductId)
                 };
 
-                return await query
+                var product = await query
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
+
+                return product;
             }
         }
     }
