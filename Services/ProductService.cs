@@ -66,18 +66,12 @@ namespace OMS_Backend.Services
                 }
             }
 
-            product.CreatedBy = 0;
-            product.CreatedAt = DateTime.UtcNow;
-
             await _productRepository.AddAsync(product);
             await _productRepository.SaveAsync();
 
             return _mapper.Map<ProductResponseDto>(product);
         }
 
-        // =====================================
-        // UPDATE PRODUCT
-        // =====================================
         public async Task<bool> UpdateAsync(int id, UpdateProductDto dto)
         {
             var product = await _productRepository
