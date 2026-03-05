@@ -32,6 +32,8 @@ namespace OMS_Backend.Data
             ConfigureProductReview(modelBuilder);
             ConfigureOrder(modelBuilder);
             ConfigureOrderItem(modelBuilder);
+
+            seedData(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -198,6 +200,28 @@ namespace OMS_Backend.Data
             }
 
             return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void seedData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserRole>().HasData(
+                new UserRole { Id = 1, RoleName = "Admin" },
+                new UserRole { Id = 2, RoleName = "Vendor" },
+                new UserRole { Id = 3, RoleName = "Customer" }
+            );
+
+            modelBuilder.Entity<Category>().HasData(
+                new Category { CategoryId = 1, CategoryName = "Electronics" },
+                new Category { CategoryId = 2, CategoryName = "Clothing" },
+                new Category { CategoryId = 3, CategoryName = "Home & Kitchen" },
+                new Category { CategoryId = 4, CategoryName = "Books" },
+                new Category { CategoryId = 5, CategoryName = "Beauty & Personal Care" },
+                new Category { CategoryId = 6, CategoryName = "Sports & Fitness" },
+                new Category { CategoryId = 7, CategoryName = "Toys & Games" },
+                new Category { CategoryId = 8, CategoryName = "Automotive" },
+                new Category { CategoryId = 9, CategoryName = "Groceries" },
+                new Category { CategoryId = 10, CategoryName = "Furniture" }
+            );
         }
     }
 }
