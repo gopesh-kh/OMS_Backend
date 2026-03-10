@@ -6,6 +6,7 @@
         public string ProductDescription { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
+        public string? ProductImage { get; set; } = string.Empty;
         public List<int> CategoryIds { get; set; } = new();
     }
 }
