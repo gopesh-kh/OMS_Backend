@@ -27,7 +27,7 @@ namespace OMS_Backend.Services
             string? sortBy,
             bool isDescending,
             int pageNumber,
-            int pageSize)
+            int numberOfProductsPerPage)
         {
             var products = await _productRepository.GetProductsAsync(
                 categoryId,
@@ -35,7 +35,7 @@ namespace OMS_Backend.Services
                 sortBy,
                 isDescending,
                 pageNumber,
-                pageSize);
+                numberOfProductsPerPage);
 
             return _mapper.Map<List<ProductResponseDto>>(products);
         }

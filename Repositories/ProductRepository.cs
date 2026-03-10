@@ -23,7 +23,7 @@ namespace OMS_Backend.Repositories
                 string? sortBy,
                 bool isDescending,
                 int pageNumber,
-                int pageSize)
+                int numberOfProductsPerPage)
             {
                 var query = _context.Products
                     .AsNoTracking()
@@ -51,8 +51,8 @@ namespace OMS_Backend.Repositories
                 };
 
                 var product = await query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
+                    .Skip((pageNumber - 1) * numberOfProductsPerPage)
+                    .Take(numberOfProductsPerPage)
                     .ToListAsync();
 
                 return product;

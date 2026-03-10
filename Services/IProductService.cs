@@ -10,7 +10,7 @@ namespace OMS_Backend.Services
             string? sortBy,
             bool isDescending,
             int pageNumber,
-            int pageSize);
+            int numberOfProductsPerPage);
 
         Task<ProductResponseDto?> GetByIdAsync(int id);
 

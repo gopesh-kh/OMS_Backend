@@ -10,6 +10,6 @@ namespace OMS_Backend.Repositories
             string? sortBy,
             bool isDescending,
             int pageNumber,
-            int pageSize);
+            int numberOfProductsPerPage);
     }
 }

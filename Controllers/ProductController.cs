@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OMS_Backend.DTOs.Product;
 using OMS_Backend.Services;
 
@@ -22,9 +23,9 @@ namespace OMS_Backend.Controllers
             [FromQuery] string? sortBy,
             [FromQuery] bool isDescending,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int numberOfProductsPerPage = 10)
         {
-            var result = await _service.GetProductsAsync(categoryId, search, sortBy, isDescending, pageNumber, pageSize);
+            var result = await _service.GetProductsAsync(categoryId, search, sortBy, isDescending, pageNumber, numberOfProductsPerPage);
             return Ok(result);
         }
 
