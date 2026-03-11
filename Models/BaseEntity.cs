@@ -5,12 +5,12 @@ namespace OMS_Backend.Models
     public class BaseEntity
     {
         [Required]
-        public int? CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
 
-        public int? ModifiedBy { get; set; }
+        public string ModifiedBy { get; set; }
         public DateTime? ModifiedAt { get; set; }
     }
 }
