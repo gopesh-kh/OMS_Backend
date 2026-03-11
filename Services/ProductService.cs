@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using OMS_Backend.DTOs.Product;
 using OMS_Backend.Models;
 using OMS_Backend.Repositories;
@@ -74,6 +75,12 @@ namespace OMS_Backend.Services
 
         public async Task<bool> UpdateAsync(int id, UpdateProductDto dto)
         {
+            if (id == null || id <= 0) 
+                return false;
+
+            if (dto == null)
+                return false;
+
             var product = await _productRepository
                 .GetByIdAsync(id);
 

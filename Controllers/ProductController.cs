@@ -18,7 +18,7 @@ namespace OMS_Backend.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Get(
-            [FromQuery] int categoryId,
+            [FromQuery] int? categoryId,
             [FromQuery] string? search,
             [FromQuery] string? sortBy,
             [FromQuery] bool isDescending,
@@ -32,13 +32,19 @@ namespace OMS_Backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            if (id == null || id <= 0)
+                return BadRequest("Provide a valid id");
+
             var result = await _service.GetByIdAsync(id);
+
             return result == null ? NotFound() : Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
+            if (dto == null) return BadRequest("Please provide valid details");
+
             var created = await _service.CreateAsync(dto);
 
             return CreatedAtAction(
@@ -50,6 +56,11 @@ namespace OMS_Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
         {
+            if (id == null || id <= 0)
+                return BadRequest("Please provide a valid id.");
+
+            if (dto == null) return BadRequest("Please provide updated details.");
+
             var updated = await _service.UpdateAsync(id, dto);
             return updated ? NoContent() : NotFound();
         }
@@ -57,6 +68,8 @@ namespace OMS_Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id == null || id <= 0) { return BadRequest("Please provide a valid id."); }
+
             var deleted = await _service.DeleteAsync(id);
             return deleted ? NoContent() : NotFound();
         }

@@ -30,8 +30,8 @@ namespace OMS_Backend.Repositories
                     .Include(p => p.Categories)
                     .AsQueryable();
 
-                //if (categoryId.HasValue)
-                //    query = query.Where(p => p.Categories.Any(c => c.CategoryId == categoryId.Value));
+                if (categoryId.HasValue)
+                    query = query.Where(p => p.Categories.Any(c => c.CategoryId == categoryId.Value));
 
                 if (!string.IsNullOrWhiteSpace(search))
                     query = query.Where(p =>

@@ -25,6 +25,9 @@ namespace OMS_Backend.Repositories
         public void Delete(T entity) => _dbSet.Remove(entity);
 
         public async Task<bool> ExistAsync(int id){
+            if (id == null || id <= 0) 
+                return false;
+
             var entity = await GetByIdAsync(id);
             return entity != null;
         }
