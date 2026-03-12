@@ -180,6 +180,28 @@ namespace OMS_Backend.Data
                 .IsUnique();
         }
 
+        //public override async Task<int> SaveChangesAsync(
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    var entries = ChangeTracker.Entries<BaseEntity>();
+
+        //    foreach (var entry in entries)
+        //    {
+        //        if (entry.State == EntityState.Added)
+        //        {
+        //            entry.Entity.CreatedAt = DateTime.UtcNow;
+        //            entry.Entity.CreatedBy = 1;
+        //        }
+        //        else if (entry.State == EntityState.Modified)
+        //        {
+        //            entry.Entity.ModifiedAt = DateTime.UtcNow;
+        //            entry.Entity.ModifiedBy = 1;
+        //        }
+        //    }
+
+        //    return await base.SaveChangesAsync(cancellationToken);
+        //}
+
         private void seedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserRole>().HasData(

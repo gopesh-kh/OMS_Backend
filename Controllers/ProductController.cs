@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OMS_Backend.DTOs.Product;
 using OMS_Backend.Services;
+using OMS_Backend.Utils;
 
 namespace OMS_Backend.Controllers
 {
@@ -32,7 +32,7 @@ namespace OMS_Backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            if (id == null || id <= 0)
+            if (Guard.IsInvalidId(id))
                 return BadRequest("Provide a valid id");
 
             var result = await _service.GetByIdAsync(id);
@@ -41,11 +41,24 @@ namespace OMS_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateProductDto request)
         {
-            if (dto == null) return BadRequest("Please provide valid details");
+            if (Guard.IsNull(request))
+                return BadRequest("Please provide valid product details.");
 
-            var created = await _service.CreateAsync(dto);
+            if (Guard.IsNullOrEmpty(request.ProductName))
+                return BadRequest("Product name is required.");
+
+            if (Guard.IsNegative(request.Price))
+                return BadRequest("Price cannot be negative.");
+
+            if (Guard.IsNegative(request.StockQuantity))
+                return BadRequest("Stock quantity cannot be negative.");
+
+            if (Guard.IsNullOrEmptyCollection(request.CategoryIds))
+                return BadRequest("At least one category must be provided.");
+
+            var created = await _service.CreateAsync(request);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -54,21 +67,35 @@ namespace OMS_Backend.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto request)
         {
-            if (id == null || id <= 0)
+            if (Guard.IsInvalidId(id))
                 return BadRequest("Please provide a valid id.");
 
-            if (dto == null) return BadRequest("Please provide updated details.");
+            if (Guard.IsNull(request))
+                return BadRequest("Please provide valid updated details.");
 
-            var updated = await _service.UpdateAsync(id, dto);
+            if (Guard.IsNullOrEmpty(request.ProductName))
+                return BadRequest("Product name is required.");
+
+            if (Guard.IsNegative(request.Price))
+                return BadRequest("Price cannot be negative.");
+
+            if (Guard.IsNegative(request.StockQuantity))
+                return BadRequest("Stock quantity cannot be negative.");
+
+            if (Guard.IsNullOrEmptyCollection(request.CategoryIds))
+                return BadRequest("At least one category must be provided.");
+
+            var updated = await _service.UpdateAsync(id, request);
+
             return updated ? NoContent() : NotFound();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id == null || id <= 0) { return BadRequest("Please provide a valid id."); }
+            if (Guard.IsInvalidId(id)) { return BadRequest("Please provide a valid id."); }
 
             var deleted = await _service.DeleteAsync(id);
             return deleted ? NoContent() : NotFound();

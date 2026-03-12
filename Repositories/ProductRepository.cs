@@ -4,59 +4,57 @@ using OMS_Backend.Models;
 
 namespace OMS_Backend.Repositories
 {
-    using Microsoft.EntityFrameworkCore;
-
-    namespace OMS_Backend.Repositories
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
-        public class ProductRepository : GenericRepository<Product>, IProductRepository
+        private readonly AppDbContext _context;
+
+        public ProductRepository(AppDbContext context) : base(context)
         {
-            private readonly AppDbContext _context;
+            _context = context;
+        }
 
-            public ProductRepository(AppDbContext context) : base(context)
+        public async Task<List<Product>> GetProductsAsync(
+            int? categoryId,
+            string? search,
+            string? sortBy,
+            bool isDescending,
+            int pageNumber,
+            int numberOfProductsPerPage)
+        {
+            var query = _context.Products
+                .AsNoTracking()
+                .Include(p => p.Categories)
+                .AsQueryable();
+
+            if (categoryId.HasValue)
+                query = query.Where(p =>
+                    p.Categories.Any(c => c.CategoryId == categoryId.Value));
+
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(p =>
+                    p.ProductName.Contains(search));
+
+            query = sortBy?.ToLower() switch
             {
-                _context = context;
-            }
+                "price" => isDescending
+                    ? query.OrderByDescending(p => p.Price)
+                    : query.OrderBy(p => p.Price),
 
-            public async Task<List<Product>> GetProductsAsync(
-                int? categoryId,
-                string? search,
-                string? sortBy,
-                bool isDescending,
-                int pageNumber,
-                int numberOfProductsPerPage)
-            {
-                var query = _context.Products
-                    .AsNoTracking()
-                    .Include(p => p.Categories)
-                    .AsQueryable();
+                "name" => isDescending
+                    ? query.OrderByDescending(p => p.ProductName)
+                    : query.OrderBy(p => p.ProductName),
 
-                if (categoryId.HasValue)
-                    query = query.Where(p => p.Categories.Any(c => c.CategoryId == categoryId.Value));
+                _ => query.OrderByDescending(p => p.ProductId)
+            };
 
-                if (!string.IsNullOrWhiteSpace(search))
-                    query = query.Where(p =>
-                        p.ProductName.Contains(search));
+            var product = await query
+                .Skip((pageNumber - 1) * numberOfProductsPerPage)
+                .Take(numberOfProductsPerPage)
+                .ToListAsync();
 
-                query = sortBy?.ToLower() switch
-                {
-                    "price" => isDescending
-                        ? query.OrderByDescending(p => p.Price)
-                        : query.OrderBy(p => p.Price),
+            Console.WriteLine(product);
 
-                    "name" => isDescending
-                        ? query.OrderByDescending(p => p.ProductName)
-                        : query.OrderBy(p => p.ProductName),
-
-                    _ => query.OrderByDescending(p => p.ProductId)
-                };
-
-                var product = await query
-                    .Skip((pageNumber - 1) * numberOfProductsPerPage)
-                    .Take(numberOfProductsPerPage)
-                    .ToListAsync();
-
-                return product;
-            }
+            return product;
         }
     }
 }
