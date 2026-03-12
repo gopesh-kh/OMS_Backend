@@ -10,11 +10,7 @@ namespace OMS_Backend.Models
         [Required]
         public DateTime CreatedAt { get; set; }
 
-<<<<<<< Updated upstream
-        public string? ModifiedBy { get; set; }
-=======
         public string? ModifiedBy { get; set; } = String.Empty;
->>>>>>> Stashed changes
         public DateTime? ModifiedAt { get; set; }
     }
 }
