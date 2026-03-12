@@ -31,21 +31,12 @@ namespace OMS_Backend.Services
 
         public async Task<string?> RegisterAsync(CreateUserDto request)
         {
-            if (Guard.IsNull(request))
-                return null;
-
-            if (Guard.IsNullOrEmpty(request.Email))
-                return null;
-
-            if (Guard.IsNullOrEmpty(request.Password))
+            if (Guard.IsNull(request) || Guard.IsNullOrEmpty(request.Email) || Guard.IsNullOrEmpty(request.Password))
                 return null;
 
             var existingUser = await _authRepository.UserExistAsync(request.Email);
 
-            if (!Guard.IsNull(existingUser))
-                return null;
-
-            if (!PasswordChecker.IsPasswordStrong(request.Password))
+            if (!Guard.IsNull(existingUser) || !PasswordChecker.IsPasswordStrong(request.Password))
                 return null;
 
             var user = _mapper.Map<User>(request);
@@ -65,13 +56,7 @@ namespace OMS_Backend.Services
 
         public async Task<string?> LoginAsync(LoginUserDto request)
         {
-            if (Guard.IsNull(request))
-                return null;
-
-            if (Guard.IsNullOrEmpty(request.Email))
-                return null;
-
-            if (Guard.IsNullOrEmpty(request.Password))
+            if (Guard.IsNull(request) || Guard.IsNullOrEmpty(request.Email) || Guard.IsNullOrEmpty(request.Password))
                 return null;
 
             var user = await _authRepository.UserExistAsync(request.Email);

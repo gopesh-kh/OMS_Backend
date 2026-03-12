@@ -18,13 +18,7 @@ namespace OMS_Backend.Repositories
 
         public async Task RegisterAsync(User request)
         {
-            if (Guard.IsNull(request))
-                return;
-
-            if (Guard.IsNullOrEmpty(request.Email))
-                return;
-
-            if (Guard.IsNullOrEmpty(request.PasswordHash))
+            if (Guard.IsNull(request) || Guard.IsNullOrEmpty(request.Email) || Guard.IsNullOrEmpty(request.PasswordHash))
                 return;
 
             await _dbSet.AddAsync(request);

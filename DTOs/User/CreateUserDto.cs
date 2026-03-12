@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class CreateUserDto
+public class CreateUserDto :LoginUserDto
 {
     [Required]
     [StringLength(50)]
@@ -8,12 +8,4 @@ public class CreateUserDto
 
     [StringLength(50)]
     public string? LastName { get; set; }
-
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = string.Empty;
-
-    [Required]
-    [MinLength(6)]
-    public string Password { get; set; } = string.Empty;
 }
