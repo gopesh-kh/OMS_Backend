@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OMS_Backend.Data;
+using OMS_Backend.Utils;
 
 namespace OMS_Backend.Repositories
 {
@@ -14,24 +15,58 @@ namespace OMS_Backend.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.AsNoTracking().ToListAsync();
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .ToListAsync();
+        }
 
-        public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+        public async Task<T?> GetByIdAsync(int id)
+        {
+            if (Guard.IsInvalidId(id))
+                return null;
 
-        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
+            return await _dbSet.FindAsync(id);
+        }
 
-        public void Update(T entity) => _dbSet.Update(entity);
+        public async Task AddAsync(T entity)
+        {
+            if (Guard.IsNull(entity))
+                throw new ArgumentNullException(nameof(entity));
 
-        public void Delete(T entity) => _dbSet.Remove(entity);
+            await _dbSet.AddAsync(entity);
+        }
 
-        public async Task<bool> ExistAsync(int id){
-            if (id == null || id <= 0) 
+        public void Update(T entity)
+        {
+            if (Guard.IsNull(entity))
+                throw new ArgumentNullException(nameof(entity));
+
+            _dbSet.Update(entity);
+        }
+
+        public void Delete(T entity)
+        {
+            if (Guard.IsNull(entity))
+                throw new ArgumentNullException(nameof(entity));
+
+            _dbSet.Remove(entity);
+        }
+
+        public async Task<bool> ExistAsync(int id)
+        {
+            if (Guard.IsInvalidId(id))
                 return false;
 
             var entity = await GetByIdAsync(id);
-            return entity != null;
+
+            return !Guard.IsNull(entity);
         }
 
-        public async Task SaveAsync() => await _context.SaveChangesAsync();
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

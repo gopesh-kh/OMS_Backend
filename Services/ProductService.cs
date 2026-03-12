@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using OMS_Backend.DTOs.Product;
 using OMS_Backend.Models;
 using OMS_Backend.Repositories;
+using OMS_Backend.Utils;
 
 namespace OMS_Backend.Services
 {
@@ -30,6 +30,7 @@ namespace OMS_Backend.Services
             int pageNumber,
             int numberOfProductsPerPage)
         {
+
             var products = await _productRepository.GetProductsAsync(
                 categoryId,
                 search,
@@ -43,20 +44,31 @@ namespace OMS_Backend.Services
 
         public async Task<ProductResponseDto?> GetByIdAsync(int id)
         {
-            var product = await _productRepository
-                .GetByIdAsync(id);
+            if (Guard.IsInvalidId(id))
+                return null;
 
-            if (product == null)
+            var product = await _productRepository.GetByIdAsync(id);
+
+            if (Guard.IsNull(product))
                 return null;
 
             return _mapper.Map<ProductResponseDto>(product);
         }
 
-        public async Task<ProductResponseDto> CreateAsync(CreateProductDto dto)
+        public async Task<ProductResponseDto?> CreateAsync(CreateProductDto dto)
         {
+            if (Guard.IsNull(dto))
+                return null;
+
+            if (Guard.IsNullOrEmpty(dto.ProductName))
+                return null;
+
+            if (dto.Price < 0 || dto.StockQuantity < 0)
+                return null;
+
             var product = _mapper.Map<Product>(dto);
 
-            if (dto.CategoryIds != null && dto.CategoryIds.Any())
+            if (!Guard.IsNullOrEmptyCollection(dto.CategoryIds))
             {
                 var categories = await _categoryRepository
                     .GetCategoriesByIdsAsync(dto.CategoryIds);
@@ -75,24 +87,22 @@ namespace OMS_Backend.Services
 
         public async Task<bool> UpdateAsync(int id, UpdateProductDto dto)
         {
-            if (id == null || id <= 0) 
+            if (Guard.IsInvalidId(id))
                 return false;
 
-            if (dto == null)
+            if (Guard.IsNull(dto))
                 return false;
 
-            var product = await _productRepository
-                .GetByIdAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
 
-            if (product == null)
+            if (Guard.IsNull(product))
                 return false;
 
             _mapper.Map(dto, product);
 
-            // Update Categories
             product.Categories.Clear();
 
-            if (dto.CategoryIds != null && dto.CategoryIds.Any())
+            if (!Guard.IsNullOrEmptyCollection(dto.CategoryIds))
             {
                 var categories = await _categoryRepository
                     .GetCategoriesByIdsAsync(dto.CategoryIds);
@@ -111,9 +121,12 @@ namespace OMS_Backend.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
+            if (Guard.IsInvalidId(id))
+                return false;
+
             var product = await _productRepository.GetByIdAsync(id);
 
-            if (product == null)
+            if (Guard.IsNull(product))
                 return false;
 
             _productRepository.Delete(product);

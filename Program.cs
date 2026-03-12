@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OMS_Backend.Data;
 using OMS_Backend.Repositories;
-using OMS_Backend.Repositories.OMS_Backend.Repositories;
 using OMS_Backend.Services;
 
 namespace OMS_Backend
