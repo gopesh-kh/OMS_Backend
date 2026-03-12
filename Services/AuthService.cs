@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using OMS_Backend.Models;
 using OMS_Backend.Repositories;
 using OMS_Backend.utils;
+using OMS_Backend.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -14,59 +15,79 @@ namespace OMS_Backend.Services
     {
         private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
+        private readonly PasswordHasher<User> _passwordHasher;
 
-        public AuthService(IAuthRepository authRepository,
-            IMapper mapper, IConfiguration configuration)
+        public AuthService(
+            IAuthRepository authRepository,
+            IConfiguration configuration,
+            IMapper mapper)
         {
             _authRepository = authRepository;
             _configuration = configuration;
+            _mapper = mapper;
+            _passwordHasher = new PasswordHasher<User>();
         }
 
         public async Task<string?> RegisterAsync(CreateUserDto request)
         {
-            if (request == null) return null;
+            if (Guard.IsNull(request))
+                return null;
+
+            if (Guard.IsNullOrEmpty(request.Email))
+                return null;
+
+            if (Guard.IsNullOrEmpty(request.Password))
+                return null;
 
             var existingUser = await _authRepository.UserExistAsync(request.Email);
 
-            if (existingUser != null)
-            {
+            if (!Guard.IsNull(existingUser))
                 return null;
-            }
 
-            User user = new();
+            if (!PasswordChecker.IsPasswordStrong(request.Password))
+                return null;
 
-            user.Email = request.Email.ToLower();
+            var user = _mapper.Map<User>(request);
 
-            user.FirstName = request.FirstName.ToLower();
-
-            if (request.LastName != null) user.LastName = request.LastName;
-
-            if (!PasswordChecker.IsPasswordStrong(request.Password)) return null;
-            user.PasswordHash = new PasswordHasher<User>().HashPassword(user, request.Password);
-
+            user.Email = user.Email.ToLower();
+            user.FirstName = user.FirstName.ToLower();
             user.CreatedBy = request.Email;
             user.CreatedAt = DateTime.UtcNow;
+            user.UserRoleId = 3;
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
             await _authRepository.RegisterAsync(user);
 
-            var token = CreateToken(user);
-            return token;
+            return CreateToken(user);
         }
 
         public async Task<string?> LoginAsync(LoginUserDto request)
         {
-            if (request == null) return null;
+            if (Guard.IsNull(request))
+                return null;
+
+            if (Guard.IsNullOrEmpty(request.Email))
+                return null;
+
+            if (Guard.IsNullOrEmpty(request.Password))
+                return null;
 
             var user = await _authRepository.UserExistAsync(request.Email);
 
-            if (user == null)
+            if (Guard.IsNull(user))
                 return null;
 
-            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
+            var verifyResult = _passwordHasher.VerifyHashedPassword(
+                user!,
+                user!.PasswordHash,
+                request.Password);
+
+            if (verifyResult == PasswordVerificationResult.Failed)
                 return null;
 
-            var token = CreateToken(user);
-            return token;
+            return CreateToken(user);
         }
 
         private string CreateToken(User user)
@@ -74,25 +95,24 @@ namespace OMS_Backend.Services
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Name, user.FirstName)
+                new(ClaimTypes.Name, user.FirstName),
+                new(ClaimTypes.NameIdentifier, user.UserId.ToString())
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Appsettings:Token")!));
+                Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"]!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: _configuration.GetValue<string>("Appsettings:Issuer"),
-                audience: _configuration.GetValue<string>("Appsettings:Audience"),
+                issuer: _configuration["AppSettings:Issuer"],
+                audience: _configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
-                );
+            );
 
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
-
-            return token;
+            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
     }
 }

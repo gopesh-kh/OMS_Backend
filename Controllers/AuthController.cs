@@ -12,62 +12,62 @@ namespace OMS_Backend.Controllers
 
         public AuthController(IAuthService authService)
         {
-           _authService = authService;
+            _authService = authService;
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> Register(CreateUserDto request)
+        public async Task<IActionResult> Register([FromBody] CreateUserDto request)
         {
-            if (Guard.IsNull(request)) return BadRequest("Please provide valid data.");
+            if (Guard.IsNull(request))
+                return BadRequest("Request body cannot be empty.");
+
+            if (Guard.IsNullOrEmpty(request.Email))
+                return BadRequest("Email is required.");
+
+            if (Guard.IsNullOrEmpty(request.Password))
+                return BadRequest("Password is required.");
 
             var token = await _authService.RegisterAsync(request);
 
-            if (Guard.IsNull(token)) return BadRequest("Provide proper details.");
-
-            //Response.Cookies.Append("jwt", token!, new CookieOptions
-            //{
-            //    HttpOnly = true,
-            //    Secure = true,
-            //    Expires = DateTime.UtcNow.AddDays(1)
-            //});
+            if (Guard.IsNullOrEmpty(token))
+                return BadRequest("Unable to register user.");
 
             return Ok(new
             {
-                token=token!
+                token
             });
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginUserDto request) {
-            if (Guard.IsNull(request)) return BadRequest("Please provide valid data.");
+        public async Task<IActionResult> Login([FromBody] LoginUserDto request)
+        {
+            if (Guard.IsNull(request))
+                return BadRequest("Request body cannot be empty.");
+
+            if (Guard.IsNullOrEmpty(request.Email))
+                return BadRequest("Email is required.");
+
+            if (Guard.IsNullOrEmpty(request.Password))
+                return BadRequest("Password is required.");
 
             var token = await _authService.LoginAsync(request);
 
-            if (Guard.IsNull(token)) return BadRequest("Provide proper details.");
-
-            //Response.Cookies.Append("jwt", token, new CookieOptions
-            //{
-            //    HttpOnly = true,
-            //    Secure = true,
-            //    Expires = DateTime.UtcNow.AddDays(1)
-            //});
+            if (Guard.IsNullOrEmpty(token))
+                return Unauthorized("Invalid email or password.");
 
             return Ok(new
             {
-                token = token!
+                token
             });
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
-            //Response.Cookies.Delete("jwt", new CookieOptions
-            //{
-            //    HttpOnly = true,
-            //    Secure = true
-            //});
-
-            return Ok(new { message = "Logged out successfully" });
+            return Ok(new
+            {
+                message = "Logged out successfully"
+            });
         }
     }
 }
