@@ -57,13 +57,7 @@ namespace OMS_Backend.Services
 
         public async Task<ProductResponseDto?> CreateAsync(CreateProductDto dto)
         {
-            if (Guard.IsNull(dto))
-                return null;
-
-            if (Guard.IsNullOrEmpty(dto.ProductName))
-                return null;
-
-            if (dto.Price < 0 || dto.StockQuantity < 0)
+            if (Guard.IsNull(dto) || Guard.IsNullOrEmpty(dto.ProductName) || dto.Price < 0 || dto.StockQuantity < 0)
                 return null;
 
             var product = _mapper.Map<Product>(dto);
@@ -87,10 +81,7 @@ namespace OMS_Backend.Services
 
         public async Task<bool> UpdateAsync(int id, UpdateProductDto dto)
         {
-            if (Guard.IsInvalidId(id))
-                return false;
-
-            if (Guard.IsNull(dto))
+            if (Guard.IsInvalidId(id) || Guard.IsNull(dto))
                 return false;
 
             var product = await _productRepository.GetByIdAsync(id);

@@ -18,7 +18,7 @@ namespace OMS_Backend.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Register([FromBody] CreateUserDto request)
         {
-            if (Guard.IsNull(request)|| Guard.IsNullOrEmpty(request.Email) || Guard.IsNullOrEmpty(request.Password))
+            if (Guard.IsNull(request))
                 return BadRequest("Request body cannot be empty.");
 
             var token = await _authService.RegisterAsync(request);
@@ -35,7 +35,7 @@ namespace OMS_Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserDto request)
         {
-            if (Guard.IsNull(request) || Guard.IsNullOrEmpty(request.Email) || Guard.IsNullOrEmpty(request.Password))
+            if (Guard.IsNull(request))
                 return BadRequest("Request body cannot be empty.");
 
             var token = await _authService.LoginAsync(request);
