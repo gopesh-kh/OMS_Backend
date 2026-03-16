@@ -26,9 +26,19 @@ namespace OMS_Backend.Controllers
             if (Guard.IsNullOrEmpty(token))
                 return BadRequest("Unable to register user.");
 
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,         
+                Secure = true,           
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(1)
+            };
+
+            Response.Cookies.Append("authToken", token!, cookieOptions);
+
             return Ok(new
             {
-                token
+                message = "User registered successfully"
             });
         }
 
@@ -43,15 +53,27 @@ namespace OMS_Backend.Controllers
             if (Guard.IsNullOrEmpty(token))
                 return Unauthorized("Invalid email or password.");
 
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("authToken", token!, cookieOptions);
+
             return Ok(new
             {
-                token
+                message = "Login successful"
             });
         }
 
         [HttpPost("logout")]
         public IActionResult Logout()
         {
+            Response.Cookies.Delete("authToken");
+
             return Ok(new
             {
                 message = "Logged out successfully"

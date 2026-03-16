@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OMS_Backend.Data;
 using OMS_Backend.Repositories;
 using OMS_Backend.Services;
+using System.Text;
 
 namespace OMS_Backend
 {
@@ -13,7 +16,7 @@ namespace OMS_Backend
 
             builder.Services.AddCors(options =>
             {
-                options.AddDefaultPolicy(policy =>
+                options.AddPolicy("AllowFrontend", policy =>
                 {
                     policy.WithOrigins("http://localhost:5173")
                           .AllowAnyMethod()
@@ -21,6 +24,33 @@ namespace OMS_Backend
                           .AllowCredentials();
                 });
             });
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            context.Token = context.Request.Cookies["authToken"];
+                            return Task.CompletedTask;
+                        }
+                    };
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = builder.Configuration["Appsettings:Issuer"],
+                        ValidAudience = builder.Configuration["Appsettings:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!))
+                    };
+                });
+
 
             builder.Services.AddControllers();
 
@@ -51,7 +81,10 @@ namespace OMS_Backend
 
             app.UseHttpsRedirection();
 
-            app.UseCors();
+            app.UseCors("AllowFrontend");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapControllers();
 
