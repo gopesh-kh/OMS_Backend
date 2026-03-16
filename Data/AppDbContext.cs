@@ -33,7 +33,7 @@ namespace OMS_Backend.Data
             ConfigureOrder(modelBuilder);
             ConfigureOrderItem(modelBuilder);
 
-            seedData(modelBuilder);
+            //seedData(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)

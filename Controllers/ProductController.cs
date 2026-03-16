@@ -46,18 +46,6 @@ namespace OMS_Backend.Controllers
             if (Guard.IsNull(request))
                 return BadRequest("Please provide valid product details.");
 
-            if (Guard.IsNullOrEmpty(request.ProductName))
-                return BadRequest("Product name is required.");
-
-            if (Guard.IsNegative(request.Price))
-                return BadRequest("Price cannot be negative.");
-
-            if (Guard.IsNegative(request.StockQuantity))
-                return BadRequest("Stock quantity cannot be negative.");
-
-            if (Guard.IsNullOrEmptyCollection(request.CategoryIds))
-                return BadRequest("At least one category must be provided.");
-
             var created = await _service.CreateAsync(request);
 
             return CreatedAtAction(
@@ -74,18 +62,6 @@ namespace OMS_Backend.Controllers
 
             if (Guard.IsNull(request))
                 return BadRequest("Please provide valid updated details.");
-
-            if (Guard.IsNullOrEmpty(request.ProductName))
-                return BadRequest("Product name is required.");
-
-            if (Guard.IsNegative(request.Price))
-                return BadRequest("Price cannot be negative.");
-
-            if (Guard.IsNegative(request.StockQuantity))
-                return BadRequest("Stock quantity cannot be negative.");
-
-            if (Guard.IsNullOrEmptyCollection(request.CategoryIds))
-                return BadRequest("At least one category must be provided.");
 
             var updated = await _service.UpdateAsync(id, request);
 

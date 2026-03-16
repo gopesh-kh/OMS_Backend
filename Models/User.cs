@@ -25,8 +25,7 @@ namespace OMS_Backend.Models
         [Required]
         public int UserRoleId { get; set; }
 
-        [Required]
-        public int CartId { get; set; }
+        public int? CartId { get; set; }
 
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
