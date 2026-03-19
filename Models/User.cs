@@ -22,16 +22,14 @@ namespace OMS_Backend.Models
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
-        [Required]
         public int UserRoleId { get; set; }
-
-        public int? CartId { get; set; }
+        public UserRole? UserRole { get; set; }
+        public Cart? Cart { get; set; }
 
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         public ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
         public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
-        public UserRole? UserRole { get; set; }
-        public Cart? Cart { get; set; }
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

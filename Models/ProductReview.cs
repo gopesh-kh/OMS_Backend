@@ -14,10 +14,8 @@ namespace OMS_Backend.Models
         [StringLength(1000, ErrorMessage = "Review cannot exceed 1000 characters.")]
         public string? ReviewText { get; set; }
 
-        [Required]
         public int ProductId { get; set; }
 
-        [Required]
         public int UserId { get; set; }
 
         public Product? Product { get; set; }

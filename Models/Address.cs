@@ -12,12 +12,12 @@ namespace OMS_Backend.Models
         public string AddressLine1 { get; set; } = string.Empty;
 
         [StringLength(150)]
-        public string AddressLine2 { get; set;} = string.Empty;
+        public string AddressLine2 { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]
         public string City { get; set; } = string.Empty;
-        
+
         [Required]
         [StringLength(50)]
         public string State { get; set; } = string.Empty;

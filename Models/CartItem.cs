@@ -17,10 +17,8 @@ namespace OMS_Backend.Models
         [Range(0.01, 99999999)]
         public decimal UnitPrice { get; set; }
 
-        [Required]
         public int CartId { get; set; }
 
-        [Required]
         public int ProductId { get; set; }
 
         public Cart? Cart { get; set; }

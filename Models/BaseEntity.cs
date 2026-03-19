@@ -10,7 +10,7 @@ namespace OMS_Backend.Models
         [Required]
         public DateTime CreatedAt { get; set; }
 
-        public string? ModifiedBy { get; set; } = String.Empty;
+        public string? ModifiedBy { get; set; } 
         public DateTime? ModifiedAt { get; set; }
     }
 }
