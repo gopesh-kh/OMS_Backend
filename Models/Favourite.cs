@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMS_Backend.Models
 {
@@ -8,10 +7,8 @@ namespace OMS_Backend.Models
         [Key]
         public int FavouriteId { get; set; }
 
-        [Required]
         public int UserId { get; set; }
 
-        [Required]
         public int ProductId { get; set; }
 
         public User? User { get; set; }

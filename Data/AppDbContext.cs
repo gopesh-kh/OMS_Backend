@@ -1,11 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OMS_Backend.Models;
+using System.Security.Claims;
 
 namespace OMS_Backend.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
 
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Cart> Carts { get; set; }
@@ -97,9 +102,15 @@ namespace OMS_Backend.Data
         private void ConfigureProduct(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.Categories)
-                .WithMany(c => c.Products)
-                .UsingEntity(j => j.ToTable("ProductCategories"));
+         .HasMany(p => p.Categories)
+         .WithMany(c => c.Products)
+         .UsingEntity(j => j.ToTable("ProductCategories"));
+
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Vendor)
+                .WithMany(u => u.Products)
+                .HasForeignKey(p => p.VendorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void ConfigureFavourite(ModelBuilder modelBuilder)
@@ -112,7 +123,7 @@ namespace OMS_Backend.Data
 
             modelBuilder.Entity<Favourite>()
                 .HasOne(f => f.Product)
-                .WithMany()
+                .WithMany(p => p.Favourites)
                 .HasForeignKey(f => f.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -131,7 +142,7 @@ namespace OMS_Backend.Data
 
             modelBuilder.Entity<ProductReview>()
                 .HasOne(pr => pr.Product)
-                .WithMany()
+                .WithMany(p => p.ProductReviews)  
                 .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -180,6 +191,36 @@ namespace OMS_Backend.Data
                 .IsUnique();
         }
 
+        public override async Task<int> SaveChangesAsync(
+       CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<Models.BaseEntity>();
+
+            var userId = _httpContextAccessor.HttpContext?
+                .User?
+                .FindFirst(ClaimTypes.NameIdentifier)?
+                .Value ?? "System";
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = userId;
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.ModifiedAt = DateTime.UtcNow;
+                    entry.Entity.ModifiedBy = userId;
+
+                    entry.Property(x => x.CreatedAt).IsModified = false;
+                    entry.Property(x => x.CreatedBy).IsModified = false;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
         private void seedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserRole>().HasData(
