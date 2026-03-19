@@ -25,8 +25,7 @@ namespace OMS_Backend
                 });
             });
 
-            builder.Services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.Events = new JwtBearerEvents
@@ -48,15 +47,14 @@ namespace OMS_Backend
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-
-                        ValidIssuer = builder.Configuration["AppSettings:Issuer"],
-                        ValidAudience = builder.Configuration["AppSettings:Audience"],
+                        ValidIssuer = builder.Configuration["Appsettings:Issuer"],
+                        ValidAudience = builder.Configuration["Appsettings:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
+                            Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!))
                     };
                 });
 
-            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
