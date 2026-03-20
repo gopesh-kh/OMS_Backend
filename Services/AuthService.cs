@@ -42,7 +42,7 @@ namespace OMS_Backend.Services
             user.Email = email;
             user.FirstName = user.FirstName.Trim();
             user.LastName = user.LastName?.Trim()!;
-            user.UserRoleId = request.UserRoleId == 0 ? 3 : request.UserRoleId;
+            user.UserRoleId = 2;
 
             user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 

@@ -21,10 +21,7 @@ namespace OMS_Backend.Services
         {
             var (data, total) = await _repository.GetPagedAsync(
                 query,
-                u => Guard.IsNullOrWhiteSpace(query.Search) ||
-                     u.FirstName.ToLower().Contains(query.Search!.ToLower()) ||
-                     u.Email.ToLower().Contains(query.Search!.ToLower())
-            );
+                u => Guard.IsNullOrWhiteSpace(query.Search));
 
             return (_mapper.Map<IEnumerable<UserResponseDto>>(data), total);
         }

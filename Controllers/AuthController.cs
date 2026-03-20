@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OMS_Backend.DTOs.User;
 using OMS_Backend.Services;
+using OMS_Backend.Utils;
 
 namespace OMS_Backend.Controllers
 {
@@ -24,6 +24,8 @@ namespace OMS_Backend.Controllers
             try
             {
                 var result = await _authService.RegisterAsync(request);
+
+                if(Guard.IsNull(request)) { return BadRequest("Could not register, provide valid request"); }
 
                 var cookieOptions = new CookieOptions
                 {
@@ -56,6 +58,8 @@ namespace OMS_Backend.Controllers
             try
             {
                 var result = await _authService.LoginAsync(request);
+
+                if (Guard.IsNull(request)) { return BadRequest("Could not login, provide valid request"); }
 
                 var cookieOptions = new CookieOptions
                 {

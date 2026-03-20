@@ -70,11 +70,18 @@ namespace OMS_Backend.Repositories
 
             var totalCount = await query.CountAsync();
 
-            if (!Guard.IsNullOrWhiteSpace(queryParams.SortBy))
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
             {
-                query = queryParams.IsDescending
-                    ? query.OrderByDescending(e => EF.Property<object>(e, queryParams.SortBy))
-                    : query.OrderBy(e => EF.Property<object>(e, queryParams.SortBy));
+                try
+                {
+                    query = queryParams.IsDescending
+                        ? query.OrderByDescending(e => EF.Property<object>(e, queryParams.SortBy))
+                        : query.OrderBy(e => EF.Property<object>(e, queryParams.SortBy));
+                }
+                catch
+                {
+                    query = query.OrderBy(e => 0);
+                }
             }
 
             var data = await query

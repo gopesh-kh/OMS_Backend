@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OMS_Backend.DTOs.User;
 using OMS_Backend.Services;
@@ -40,6 +41,8 @@ namespace OMS_Backend.Controllers
                 return BadRequest("Provide a valid id");
 
             var result = await _service.GetByIdAsync(id);
+
+            if (Guard.IsNull(result)) { return BadRequest("Could not find user, provide valid request"); }
 
             return result == null ? NotFound() : Ok(result);
         }
