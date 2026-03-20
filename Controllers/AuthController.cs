@@ -22,7 +22,8 @@ namespace OMS_Backend.Controllers
 
             var token = await _authService.RegisterAsync(request);
 
-            if (Guard.IsNull(token)) return BadRequest("Provide proper details.");
+            if (Guard.IsNullOrWhiteSpace(token))
+                return BadRequest("Unable to register user.");
 
             //Response.Cookies.Append("jwt", token!, new CookieOptions
             //{
@@ -31,9 +32,11 @@ namespace OMS_Backend.Controllers
             //    Expires = DateTime.UtcNow.AddDays(1)
             //});
 
+            Response.Cookies.Append("authToken", token!, cookieOptions);
+
             return Ok(new
             {
-                token=token!
+                message = "User registered successfully"
             });
         }
 
@@ -43,7 +46,16 @@ namespace OMS_Backend.Controllers
 
             var token = await _authService.LoginAsync(request);
 
-            if (Guard.IsNull(token)) return BadRequest("Provide proper details.");
+            if (Guard.IsNullOrWhiteSpace(token))
+                return Unauthorized("Invalid email or password.");
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
 
             //Response.Cookies.Append("jwt", token, new CookieOptions
             //{
