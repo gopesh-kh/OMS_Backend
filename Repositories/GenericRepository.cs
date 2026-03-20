@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OMS_Backend.Data;
 using OMS_Backend.Utils;
+using System.Linq.Expressions;
 
 namespace OMS_Backend.Repositories
 {
@@ -30,6 +31,61 @@ namespace OMS_Backend.Repositories
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
+        {
+            if (Guard.IsNull(predicate))
+                return null;
+
+            return await _dbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            if (Guard.IsNull(predicate))
+                return Enumerable.Empty<T>();
+
+            return await _dbSet
+                .AsNoTracking()
+                .Where(predicate)
+                .ToListAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            if (Guard.IsNull(predicate))
+                return false;
+
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        public async Task<(IEnumerable<T> Data, int TotalCount)> GetPagedAsync(
+            QueryParams queryParams, Expression<Func<T, bool>>? filter = null)
+        {
+            var query = _dbSet.AsQueryable();
+
+            if (!Guard.IsNull(filter))
+                query = query.Where(filter!);
+
+            var totalCount = await query.CountAsync();
+
+            if (!Guard.IsNullOrWhiteSpace(queryParams.SortBy))
+            {
+                query = queryParams.IsDescending
+                    ? query.OrderByDescending(e => EF.Property<object>(e, queryParams.SortBy))
+                    : query.OrderBy(e => EF.Property<object>(e, queryParams.SortBy));
+            }
+
+            var data = await query
+                .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
+                .Take(queryParams.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return (data, totalCount);
+        }
+
         public async Task AddAsync(T entity)
         {
             if (Guard.IsNull(entity))
@@ -52,16 +108,6 @@ namespace OMS_Backend.Repositories
                 throw new ArgumentNullException(nameof(entity));
 
             _dbSet.Remove(entity);
-        }
-
-        public async Task<bool> ExistAsync(int id)
-        {
-            if (Guard.IsInvalidId(id))
-                return false;
-
-            var entity = await GetByIdAsync(id);
-
-            return !Guard.IsNull(entity);
         }
 
         public async Task SaveAsync()

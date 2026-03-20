@@ -4,7 +4,10 @@ namespace OMS_Backend.Repositories
 {
     public interface IAuthRepository
     {
-        Task RegisterAsync(User request);
-        Task<User?> UserExistAsync(string email);
+        Task<User> RegisterAsync(User user);
+
+        Task<User?> GetByEmailAsync(string email);
+
+        Task<bool> EmailExistsAsync(string email);
     }
 }
