@@ -25,7 +25,8 @@ namespace OMS_Backend
                 });
             });
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.Events = new JwtBearerEvents
@@ -47,10 +48,11 @@ namespace OMS_Backend
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["Appsettings:Issuer"],
-                        ValidAudience = builder.Configuration["Appsettings:Audience"],
+
+                        ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+                        ValidAudience = builder.Configuration["AppSettings:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!))
+                            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!))
                     };
                 });
 
@@ -67,15 +69,10 @@ namespace OMS_Backend
             builder.Services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-            builder.Services.AddScoped<ICartRepository, CartRepository>();
-            builder.Services.AddScoped<IOrderRepository, OrderRepository>();           
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
+
+
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IOrderService, OrderService>();
 
             var app = builder.Build();
 
