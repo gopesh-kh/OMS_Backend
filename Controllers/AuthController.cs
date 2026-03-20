@@ -25,14 +25,12 @@ namespace OMS_Backend.Controllers
             if (Guard.IsNullOrWhiteSpace(token))
                 return BadRequest("Unable to register user.");
 
-            //Response.Cookies.Append("jwt", token!, new CookieOptions
-            //{
-            //    HttpOnly = true,
-            //    Secure = true,
-            //    Expires = DateTime.UtcNow.AddDays(1)
-            //});
-
-            Response.Cookies.Append("authToken", token!, cookieOptions);
+            Response.Cookies.Append("jwt", token!, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(1)
+            });
 
             return Ok(new
             {
@@ -49,20 +47,12 @@ namespace OMS_Backend.Controllers
             if (Guard.IsNullOrWhiteSpace(token))
                 return Unauthorized("Invalid email or password.");
 
-            var cookieOptions = new CookieOptions
+            Response.Cookies.Append("jwt", token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddDays(7)
-            };
-
-            //Response.Cookies.Append("jwt", token, new CookieOptions
-            //{
-            //    HttpOnly = true,
-            //    Secure = true,
-            //    Expires = DateTime.UtcNow.AddDays(1)
-            //});
+                Expires = DateTime.UtcNow.AddDays(1)
+            });
 
             return Ok(new
             {
@@ -73,11 +63,11 @@ namespace OMS_Backend.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            //Response.Cookies.Delete("jwt", new CookieOptions
-            //{
-            //    HttpOnly = true,
-            //    Secure = true
-            //});
+            Response.Cookies.Delete("jwt", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true
+            });
 
             return Ok(new { message = "Logged out successfully" });
         }

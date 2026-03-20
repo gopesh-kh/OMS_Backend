@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using OMS_Backend.Models;
 
-namespace OMS_Backend.MappingProfiles
+namespace OMS_Backend.DTOs.Order
 {
-    public class UserMappingProfile : Profile
+    public class UserMappingProfile:Profile
     {
         public UserMappingProfile() {
-            CreateMap<CreateUserDto, User>()
-                .ForMember(dest => dest.PasswordHash,
-                opt => opt.MapFrom(src => src.Password));
+            //CreateMap<>();
         }
     }
 }
