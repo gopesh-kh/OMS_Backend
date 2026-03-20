@@ -105,12 +105,6 @@ namespace OMS_Backend.Data
          .HasMany(p => p.Categories)
          .WithMany(c => c.Products)
          .UsingEntity(j => j.ToTable("ProductCategories"));
-
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Vendor)
-                .WithMany(u => u.Products)
-                .HasForeignKey(p => p.VendorId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void ConfigureFavourite(ModelBuilder modelBuilder)
@@ -225,8 +219,7 @@ namespace OMS_Backend.Data
         {
             modelBuilder.Entity<UserRole>().HasData(
                 new UserRole { Id = 1, RoleName = "Admin" },
-                new UserRole { Id = 2, RoleName = "Vendor" },
-                new UserRole { Id = 3, RoleName = "Customer" }
+                new UserRole { Id = 2, RoleName = "Customer" }
             );
 
             modelBuilder.Entity<Category>().HasData(

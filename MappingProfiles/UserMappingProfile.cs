@@ -4,7 +4,7 @@ using OMS_Backend.Models;
 
 namespace OMS_Backend.MappingProfiles
 {
-    public class UserMappingProfile : Profile
+    public class UserMappingProfile:Profile
     {
         public UserMappingProfile()
         {
