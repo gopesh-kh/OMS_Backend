@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OMS_Backend.DTOs.User;
 using OMS_Backend.Services;
-using OMS_Backend.Utils;
 
 namespace OMS_Backend.Controllers
 {
@@ -18,55 +18,65 @@ namespace OMS_Backend.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Register([FromBody] CreateUserDto request)
         {
-            if (Guard.IsNull(request))
-                return BadRequest("Request body cannot be empty.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var token = await _authService.RegisterAsync(request);
-
-            if (Guard.IsNullOrEmpty(token))
-                return BadRequest("Unable to register user.");
-
-            var cookieOptions = new CookieOptions
+            try
             {
-                HttpOnly = true,         
-                Secure = true,           
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddDays(1)
-            };
+                var result = await _authService.RegisterAsync(request);
 
-            Response.Cookies.Append("authToken", token!, cookieOptions);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddDays(1)
+                };
 
-            return Ok(new
+                Response.Cookies.Append("authToken", result.Token, cookieOptions);
+
+                return Ok(new
+                {
+                    message = "User registered successfully",
+                    user = result.User
+                });
+            }
+            catch (Exception ex)
             {
-                message = "User registered successfully"
-            });
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserDto request)
         {
-            if (Guard.IsNull(request))
-                return BadRequest("Request body cannot be empty.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var token = await _authService.LoginAsync(request);
-
-            if (Guard.IsNullOrEmpty(token))
-                return Unauthorized("Invalid email or password.");
-
-            var cookieOptions = new CookieOptions
+            try
             {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddDays(7)
-            };
+                var result = await _authService.LoginAsync(request);
 
-            Response.Cookies.Append("authToken", token!, cookieOptions);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
 
-            return Ok(new
+                Response.Cookies.Append("authToken", result.Token, cookieOptions);
+
+                return Ok(new
+                {
+                    message = "Login successful",
+                    user = result.User
+                });
+            }
+            catch (Exception ex)
             {
-                message = "Login successful"
-            });
+                return Unauthorized(new { message = ex.Message });
+            }
         }
 
         [HttpPost("logout")]
