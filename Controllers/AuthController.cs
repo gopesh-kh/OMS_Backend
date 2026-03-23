@@ -27,16 +27,6 @@ namespace OMS_Backend.Controllers
 
                 if(Guard.IsNull(request)) { return BadRequest("Could not register, provide valid request"); }
 
-                var cookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTime.UtcNow.AddDays(1)
-                };
-
-                Response.Cookies.Append("authToken", result.Token, cookieOptions);
-
                 return Ok(new
                 {
                     message = "User registered successfully",

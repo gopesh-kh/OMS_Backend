@@ -48,13 +48,10 @@ namespace OMS_Backend.Services
 
             var createdUser = await _authRepository.RegisterAsync(user);
 
-            var token = CreateToken(createdUser);
-
             var userDto = _mapper.Map<UserResponseDto>(createdUser);
 
             return new AuthResponseDto
             {
-                Token = token,
                 User = userDto
             };
         }
@@ -66,7 +63,7 @@ namespace OMS_Backend.Services
             var user = await _authRepository.GetByEmailAsync(email);
 
             if (user == null)
-                throw new Exception("Invalid email or password");
+                throw new Exception("Invalid credentials");
 
             var result = _passwordHasher.VerifyHashedPassword(
                 user,
@@ -74,7 +71,7 @@ namespace OMS_Backend.Services
                 request.Password);
 
             if (result == PasswordVerificationResult.Failed)
-                throw new Exception("Invalid email or password");
+                throw new Exception("Invalid credentials");
 
             var token = CreateToken(user);
 

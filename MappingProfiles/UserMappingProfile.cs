@@ -15,7 +15,7 @@ namespace OMS_Backend.MappingProfiles
 
             CreateMap<User, UserResponseDto>()
                 .ForMember(dest => dest.UserRoleName,
-                    opt => opt.MapFrom(src => src.UserRole != null ? src.UserRole.RoleName : null));
+                    opt => opt.MapFrom(src => src.UserRole != null ? src.UserRole.RoleName : "customer"));
 
             CreateMap<UpdateUserDto, User>()
                 .ForAllMembers(opts =>
