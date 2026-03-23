@@ -12,8 +12,8 @@ using OMS_Backend.Data;
 namespace OMS_Backend.Data
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260311125349_InitialDataAdded")]
-    partial class InitialDataAdded
+    [Migration("20260323051042_SeedOrderStatusData")]
+    partial class SeedOrderStatusData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,7 +79,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostalCode")
@@ -120,7 +119,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -248,17 +246,12 @@ namespace OMS_Backend.Data
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("FavouriteId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
@@ -285,7 +278,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("OrderDate")
@@ -360,6 +352,23 @@ namespace OMS_Backend.Data
                     b.HasKey("Id");
 
                     b.ToTable("OrderStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Status = "Processed"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Status = "Fullfilled"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Status = "Failed"
+                        });
                 });
 
             modelBuilder.Entity("OMS_Backend.Models.Product", b =>
@@ -381,7 +390,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
@@ -403,7 +411,12 @@ namespace OMS_Backend.Data
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Products");
                 });
@@ -427,13 +440,9 @@ namespace OMS_Backend.Data
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ProductId1")
                         .HasColumnType("int");
 
                     b.Property<int>("Rating")
@@ -450,8 +459,6 @@ namespace OMS_Backend.Data
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("ProductId1");
-
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
@@ -465,9 +472,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
-
-                    b.Property<int?>("CartId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -495,7 +499,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
@@ -537,11 +540,6 @@ namespace OMS_Backend.Data
                         {
                             Id = 1,
                             RoleName = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            RoleName = "Vendor"
                         },
                         new
                         {
@@ -609,14 +607,10 @@ namespace OMS_Backend.Data
             modelBuilder.Entity("OMS_Backend.Models.Favourite", b =>
                 {
                     b.HasOne("OMS_Backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("Favourites")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("OMS_Backend.Models.Product", null)
-                        .WithMany("Favourites")
-                        .HasForeignKey("ProductId1");
 
                     b.HasOne("OMS_Backend.Models.User", "User")
                         .WithMany("Favourites")
@@ -675,17 +669,20 @@ namespace OMS_Backend.Data
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("OMS_Backend.Models.Product", b =>
+                {
+                    b.HasOne("OMS_Backend.Models.User", null)
+                        .WithMany("Products")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("OMS_Backend.Models.ProductReview", b =>
                 {
                     b.HasOne("OMS_Backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductReviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("OMS_Backend.Models.Product", null)
-                        .WithMany("ProductReview")
-                        .HasForeignKey("ProductId1");
 
                     b.HasOne("OMS_Backend.Models.User", "User")
                         .WithMany("ProductReviews")
@@ -723,7 +720,7 @@ namespace OMS_Backend.Data
                 {
                     b.Navigation("Favourites");
 
-                    b.Navigation("ProductReview");
+                    b.Navigation("ProductReviews");
                 });
 
             modelBuilder.Entity("OMS_Backend.Models.User", b =>
@@ -737,6 +734,8 @@ namespace OMS_Backend.Data
                     b.Navigation("Orders");
 
                     b.Navigation("ProductReviews");
+
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

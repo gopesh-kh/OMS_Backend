@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class CreateUserDto :LoginUserDto
+public class CreateUserDto : LoginUserDto
 {
-    [Required]
-    [StringLength(50)]
+    [Required(ErrorMessage = "First name is required")]
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 50 characters")]
     public string FirstName { get; set; } = string.Empty;
 
-    [StringLength(50)]
-    public string? LastName { get; set; }
+    [Required(ErrorMessage = "Last name is required")]
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 50 characters")]
+    public string LastName { get; set; } = string.Empty;
 }

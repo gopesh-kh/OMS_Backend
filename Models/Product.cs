@@ -25,7 +25,7 @@ namespace OMS_Backend.Models
         public string? ProductImage { get; set; }
 
         public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
-        public ICollection<ProductReview> ProductReview { get; set; } = new List<ProductReview>();
+        public ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
         public ICollection<Category> Categories { get; set; } = new List<Category>();
     }
 }

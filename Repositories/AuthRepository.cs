@@ -16,23 +16,29 @@ namespace OMS_Backend.Repositories
             _dbSet = _context.Set<User>();
         }
 
-        public async Task RegisterAsync(User request)
+        public async Task<User> RegisterAsync(User user)
         {
-            if (Guard.IsNull(request) || Guard.IsNullOrEmpty(request.Email) || Guard.IsNullOrEmpty(request.PasswordHash))
-                return;
+            if (Guard.IsNull(user)) { throw new ArgumentNullException("Please provide user details."); }
 
-            await _dbSet.AddAsync(request);
+            await _dbSet.AddAsync(user);
             await _context.SaveChangesAsync();
+
+            return user;
         }
 
-        public async Task<User?> UserExistAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
-            if (Guard.IsNullOrEmpty(email))
-                return null;
+            if (Guard.IsNullOrWhiteSpace(email)) { throw new ArgumentNullException("Please provide email."); }
 
             return await _dbSet
-                .AsNoTracking()
+                .Include(u => u.UserRole)
                 .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _dbSet
+                .AnyAsync(u => u.Email == email);
         }
     }
 }

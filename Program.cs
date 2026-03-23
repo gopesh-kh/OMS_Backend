@@ -25,14 +25,19 @@ namespace OMS_Backend
                 });
             });
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.Events = new JwtBearerEvents
                     {
                         OnMessageReceived = context =>
                         {
-                            context.Token = context.Request.Cookies["authToken"];
+                            var token = context.Request.Cookies["authToken"];
+
+                            if (!string.IsNullOrEmpty(token))
+                                context.Token = token;
+
                             return Task.CompletedTask;
                         }
                     };
@@ -44,10 +49,10 @@ namespace OMS_Backend
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
 
-                        ValidIssuer = builder.Configuration["Appsettings:Issuer"],
-                        ValidAudience = builder.Configuration["Appsettings:Audience"],
+                        ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+                        ValidAudience = builder.Configuration["AppSettings:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!))
+                            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!))
                     };
                 });
 
@@ -57,6 +62,8 @@ namespace OMS_Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -64,12 +71,11 @@ namespace OMS_Backend
             builder.Services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
-            builder.Services.AddScoped<IProductService, ProductService>();
+
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             var app = builder.Build();
 

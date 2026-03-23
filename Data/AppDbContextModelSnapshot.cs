@@ -243,17 +243,12 @@ namespace OMS_Backend.Data
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("FavouriteId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
@@ -354,6 +349,23 @@ namespace OMS_Backend.Data
                     b.HasKey("Id");
 
                     b.ToTable("OrderStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Status = "Processed"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Status = "Fullfilled"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Status = "Failed"
+                        });
                 });
 
             modelBuilder.Entity("OMS_Backend.Models.Product", b =>
@@ -396,7 +408,12 @@ namespace OMS_Backend.Data
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Products");
                 });
@@ -425,9 +442,6 @@ namespace OMS_Backend.Data
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -442,8 +456,6 @@ namespace OMS_Backend.Data
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("ProductId1");
-
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
@@ -457,9 +469,6 @@ namespace OMS_Backend.Data
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
-
-                    b.Property<int?>("CartId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -531,11 +540,6 @@ namespace OMS_Backend.Data
                         },
                         new
                         {
-                            Id = 2,
-                            RoleName = "Vendor"
-                        },
-                        new
-                        {
                             Id = 3,
                             RoleName = "Customer"
                         });
@@ -600,14 +604,10 @@ namespace OMS_Backend.Data
             modelBuilder.Entity("OMS_Backend.Models.Favourite", b =>
                 {
                     b.HasOne("OMS_Backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("Favourites")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("OMS_Backend.Models.Product", null)
-                        .WithMany("Favourites")
-                        .HasForeignKey("ProductId1");
 
                     b.HasOne("OMS_Backend.Models.User", "User")
                         .WithMany("Favourites")
@@ -666,17 +666,20 @@ namespace OMS_Backend.Data
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("OMS_Backend.Models.Product", b =>
+                {
+                    b.HasOne("OMS_Backend.Models.User", null)
+                        .WithMany("Products")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("OMS_Backend.Models.ProductReview", b =>
                 {
                     b.HasOne("OMS_Backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductReviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("OMS_Backend.Models.Product", null)
-                        .WithMany("ProductReview")
-                        .HasForeignKey("ProductId1");
 
                     b.HasOne("OMS_Backend.Models.User", "User")
                         .WithMany("ProductReviews")
@@ -714,7 +717,7 @@ namespace OMS_Backend.Data
                 {
                     b.Navigation("Favourites");
 
-                    b.Navigation("ProductReview");
+                    b.Navigation("ProductReviews");
                 });
 
             modelBuilder.Entity("OMS_Backend.Models.User", b =>
@@ -728,6 +731,8 @@ namespace OMS_Backend.Data
                     b.Navigation("Orders");
 
                     b.Navigation("ProductReviews");
+
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

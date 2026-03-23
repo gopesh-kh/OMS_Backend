@@ -1,11 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OMS_Backend.Models;
+using System.Security.Claims;
 
 namespace OMS_Backend.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
 
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Cart> Carts { get; set; }
@@ -33,7 +38,7 @@ namespace OMS_Backend.Data
             ConfigureOrder(modelBuilder);
             ConfigureOrderItem(modelBuilder);
 
-            //seedData(modelBuilder);
+            seedData(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -97,9 +102,9 @@ namespace OMS_Backend.Data
         private void ConfigureProduct(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.Categories)
-                .WithMany(c => c.Products)
-                .UsingEntity(j => j.ToTable("ProductCategories"));
+         .HasMany(p => p.Categories)
+         .WithMany(c => c.Products)
+         .UsingEntity(j => j.ToTable("ProductCategories"));
         }
 
         private void ConfigureFavourite(ModelBuilder modelBuilder)
@@ -112,7 +117,7 @@ namespace OMS_Backend.Data
 
             modelBuilder.Entity<Favourite>()
                 .HasOne(f => f.Product)
-                .WithMany()
+                .WithMany(p => p.Favourites)
                 .HasForeignKey(f => f.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -131,7 +136,7 @@ namespace OMS_Backend.Data
 
             modelBuilder.Entity<ProductReview>()
                 .HasOne(pr => pr.Product)
-                .WithMany()
+                .WithMany(p => p.ProductReviews)
                 .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -180,35 +185,48 @@ namespace OMS_Backend.Data
                 .IsUnique();
         }
 
-        //public override async Task<int> SaveChangesAsync(
-        //    CancellationToken cancellationToken = default)
-        //{
-        //    var entries = ChangeTracker.Entries<BaseEntity>();
+        public override async Task<int> SaveChangesAsync(
+       CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<Models.BaseEntity>();
 
-        //    foreach (var entry in entries)
-        //    {
-        //        if (entry.State == EntityState.Added)
-        //        {
-        //            entry.Entity.CreatedAt = DateTime.UtcNow;
-        //            entry.Entity.CreatedBy = 1;
-        //        }
-        //        else if (entry.State == EntityState.Modified)
-        //        {
-        //            entry.Entity.ModifiedAt = DateTime.UtcNow;
-        //            entry.Entity.ModifiedBy = 1;
-        //        }
-        //    }
+            var userId = _httpContextAccessor.HttpContext?
+                .User?
+                .FindFirst(ClaimTypes.NameIdentifier)?
+                .Value ?? "System";
 
-        //    return await base.SaveChangesAsync(cancellationToken);
-        //}
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = userId;
+                }
 
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.ModifiedAt = DateTime.UtcNow;
+                    entry.Entity.ModifiedBy = userId;
+
+                    entry.Property(x => x.CreatedAt).IsModified = false;
+                    entry.Property(x => x.CreatedBy).IsModified = false;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
         private void seedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserRole>().HasData(
                 new UserRole { Id = 1, RoleName = "Admin" },
-                new UserRole { Id = 2, RoleName = "Vendor" },
                 new UserRole { Id = 3, RoleName = "Customer" }
             );
+
+            modelBuilder.Entity<OrderStatus>().HasData(
+               new OrderStatus { Id = 1, Status = "Processed" },
+               new OrderStatus { Id = 2, Status = "Fullfilled" },
+               new OrderStatus { Id = 3, Status = "Failed" }
+           );
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Electronics" },
