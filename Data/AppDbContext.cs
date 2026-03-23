@@ -136,7 +136,7 @@ namespace OMS_Backend.Data
 
             modelBuilder.Entity<ProductReview>()
                 .HasOne(pr => pr.Product)
-                .WithMany(p => p.ProductReviews)  
+                .WithMany(p => p.ProductReviews)
                 .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -219,8 +219,14 @@ namespace OMS_Backend.Data
         {
             modelBuilder.Entity<UserRole>().HasData(
                 new UserRole { Id = 1, RoleName = "Admin" },
-                new UserRole { Id = 2, RoleName = "Customer" }
+                new UserRole { Id = 3, RoleName = "Customer" }
             );
+
+            modelBuilder.Entity<OrderStatus>().HasData(
+               new OrderStatus { Id = 1, Status = "Processed" },
+               new OrderStatus { Id = 2, Status = "Fullfilled" },
+               new OrderStatus { Id = 3, Status = "Failed" }
+           );
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Electronics" },

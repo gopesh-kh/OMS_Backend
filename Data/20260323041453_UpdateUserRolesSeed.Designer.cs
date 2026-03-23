@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OMS_Backend.Data;
 
@@ -11,9 +12,11 @@ using OMS_Backend.Data;
 namespace OMS_Backend.Data
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260323041453_UpdateUserRolesSeed")]
+    partial class UpdateUserRolesSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,23 +352,6 @@ namespace OMS_Backend.Data
                     b.HasKey("Id");
 
                     b.ToTable("OrderStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Status = "Processed"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Status = "Fullfilled"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Status = "Failed"
-                        });
                 });
 
             modelBuilder.Entity("OMS_Backend.Models.Product", b =>
