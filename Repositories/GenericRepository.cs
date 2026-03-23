@@ -52,7 +52,7 @@ namespace OMS_Backend.Repositories
                 .ToListAsync();
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        public async Task<bool> AnyExistAsync(Expression<Func<T, bool>> predicate)
         {
             if (Guard.IsNull(predicate))
                 return false;

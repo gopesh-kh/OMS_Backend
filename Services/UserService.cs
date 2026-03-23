@@ -6,55 +6,24 @@ using OMS_Backend.Utils;
 
 namespace OMS_Backend.Services
 {
-    public class UserService : IUserService
+    public class UserService
+        : GenericService<User, UserResponseDto, UpdateUserDto>, IUserService
     {
-        private readonly IGenericRepository<User> _repository;
-        private readonly IMapper _mapper;
-
-        public UserService(IGenericRepository<User> repository, IMapper mapper)
+        public UserService(
+            IGenericRepository<User> repository,
+            IMapper mapper)
+            : base(repository, mapper)
         {
-            _repository = repository;
-            _mapper = mapper;
         }
 
         public async Task<(IEnumerable<UserResponseDto>, int)> GetUsersAsync(QueryParams query)
         {
             var (data, total) = await _repository.GetPagedAsync(
                 query,
-                u => Guard.IsNullOrWhiteSpace(query.Search));
-
+               u => string.IsNullOrWhiteSpace(query.Search) 
+               || u.FirstName.Contains(query.Search) 
+               || u.LastName.Contains(query.Search));
             return (_mapper.Map<IEnumerable<UserResponseDto>>(data), total);
-        }
-
-        public async Task<UserResponseDto?> GetByIdAsync(int id)
-        {
-            if (Guard.IsInvalidId(id))
-                return null;
-
-            var user = await _repository.GetByIdAsync(id);
-
-            if (Guard.IsNull(user))
-                return null;
-
-            return _mapper.Map<UserResponseDto>(user);
-        }
-
-        public async Task<bool> UpdateAsync(int id, UpdateUserDto dto)
-        {
-            if (Guard.IsInvalidId(id) || Guard.IsNull(dto))
-                return false;
-
-            var user = await _repository.GetByIdAsync(id);
-
-            if (Guard.IsNull(user))
-                return false;
-
-            _mapper.Map(dto, user);
-
-            _repository.Update(user!);
-            await _repository.SaveAsync();
-
-            return true;
         }
     }
 }

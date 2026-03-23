@@ -1,9 +1,8 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OMS_Backend.DTOs.User;
-using OMS_Backend.Services;
 using OMS_Backend.Utils;
+using System.Security.Claims;
 
 namespace OMS_Backend.Controllers
 {
@@ -22,7 +21,10 @@ namespace OMS_Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] QueryParams query)
         {
-            var (data, total) = await _service.GetUsersAsync(query);
+            var (data, total) = await _service.GetPagedAsync(query);
+
+            if (Guard.IsNull(data))
+                return BadRequest("Could not find user");
 
             return Ok(new
             {
@@ -42,9 +44,10 @@ namespace OMS_Backend.Controllers
 
             var result = await _service.GetByIdAsync(id);
 
-            if (Guard.IsNull(result)) { return BadRequest("Could not find user, provide valid request"); }
+            if (result == null)
+                return NotFound();
 
-            return result == null ? NotFound() : Ok(result);
+            return Ok(result);
         }
 
         [Authorize]
@@ -66,7 +69,7 @@ namespace OMS_Backend.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var result = await _service.GetByIdAsync(userId);
 
@@ -80,7 +83,7 @@ namespace OMS_Backend.Controllers
             if (!ModelState.IsValid || Guard.IsNull(request))
                 return BadRequest("Invalid update request");
 
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var updated = await _service.UpdateAsync(userId, request);
 

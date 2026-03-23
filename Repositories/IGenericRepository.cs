@@ -10,7 +10,7 @@ namespace OMS_Backend.Repositories
 
         Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
-        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+        Task<bool> AnyExistAsync(Expression<Func<T, bool>> predicate);
         Task<(IEnumerable<T> Data, int TotalCount)> GetPagedAsync(
             QueryParams queryParams, 
             Expression<Func<T, bool>>? filter = null);

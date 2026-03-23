@@ -1,14 +1,9 @@
 ﻿using OMS_Backend.DTOs.User;
+using OMS_Backend.Models;
 using OMS_Backend.Utils;
 
-namespace OMS_Backend.Services
+public interface IUserService
+    : IGenericService<User, UserResponseDto, UpdateUserDto>
 {
-    public interface IUserService
-    {
-        Task<(IEnumerable<UserResponseDto>, int)> GetUsersAsync(QueryParams query);
-
-        Task<UserResponseDto?> GetByIdAsync(int id);
-
-        Task<bool> UpdateAsync(int id, UpdateUserDto dto);
-    }
+    Task<(IEnumerable<UserResponseDto>, int)> GetUsersAsync(QueryParams query);
 }
